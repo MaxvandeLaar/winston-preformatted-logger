@@ -1,0 +1,20 @@
+{
+  "name": "winston-preformatted-logger",
+  "version": "1.0.0",
+  "description": "WinstonJS based logger",
+  "main": "logger.js",
+  "author": "Max van de Laar <max.vandelaar@me.com>",
+  "license": "MIT",
+  "scripts": {
+    "docs": "jsdoc2md --template doc_src/README.hbs logger.js > README.md"
+  },
+  "dependencies": {
+    "fs-extra": "^6.0.1",
+    "moment": "^2.22.1",
+    "winston": "^3.0.0-rc4",
+    "winston-daily-rotate-file": "^2.0.0-rc.6"
+  },
+  "devDependencies": {
+    "jsdoc-to-markdown": "^4.0.1"
+  }
+}
