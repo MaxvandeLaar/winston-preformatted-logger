@@ -30,7 +30,7 @@ Next, create a new instance
 const logOptions = {
     logFolder: './logs',
     logLevel: 'info',
-    logFilename: '%DATE%',
+    logFilename: '%DATE%'
 
     // ONLY ANSI colors!
     colors: {
@@ -86,13 +86,19 @@ log.info("info message", {from: "readMe.md", label:"example", meta: {author: {fi
 **Kind**: global class  
 <a name="new_Logger_new"></a>
 
-### new Logger()
+### new Logger([module], [settings], [logOptions])
 
 | Param | Type | Default | Description |
 | --- | --- | --- | --- |
-| [opts.logFolder] | <code>string</code> | <code>&quot;./logs&quot;</code> | Destination of the generated log files. |
-| [opts.logLevel] | <code>string</code> | <code>&quot;info&quot;</code> | The log level. |
-| [opts.logFilename] | <code>string</code> | <code>&quot;%DATE%&quot;</code> | The log file's name. |
-| [opts.logFileDatePattern] | <code>string</code> | <code>&quot;YYYY-DD-MM&quot;</code> | The date pattern inside the log file's name. |
-| [opts.colors] | <code>Object</code> |  | Colors of the log levels (Uppercase). |
+| [module] | <code>Object</code> |  | Add the current module to determine the root info |
+| [settings] | <code>Object</code> |  | Destination of the generated log files. |
+| [settings.logFolder] | <code>string</code> | <code>&quot;./logs&quot;</code> | Destination of the generated log files. |
+| [settings.logLevel] | <code>string</code> | <code>&quot;info&quot;</code> | The log level. |
+| [settings.logFilename] | <code>string</code> | <code>&quot;%DATE%&quot;</code> | The log file's name. |
+| [settings.logFileDatePattern] | <code>string</code> | <code>&quot;YYYY-DD-MM&quot;</code> | The date pattern inside the log file's name. |
+| [settings.colors] | <code>Object</code> |  | Colors of the log levels (Uppercase). |
+| [logOptions] | <code>Object</code> |  | Sets the 'from' options in the log line. |
+| [logOptions.from] | <code>string</code> |  | Sets the 'from' options in the log line. |
+| [logOptions.label] | <code>string</code> |  | Sets the 'label' options in the log line. |
+| [logOptions.meta] | <code>Object</code> |  | Include default metadata to the log line. |
 

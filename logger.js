@@ -8,7 +8,6 @@ const winston = require('winston');
 const {createLogger, format, transports } = winston;
 const moment = require('moment');
 require('winston-daily-rotate-file');
-
 const ANSI_RESET = "\u001B[0m";
 const ANSI_WHITE = "\u001B[30m";
 const ANSI_RED = "\u001B[31m";
@@ -20,20 +19,50 @@ const ANSI_CYAN = "\u001B[36m";
 const ANSI_GRAY = "\u001B[37m";
 
 class Logger {
+    formatLogLine(info, logOptions, applyColors = false){
+        const tmpFrom = info.from || logOptions.from;
+        const from = tmpFrom ? `[${tmpFrom}]` : '';
+
+        const tmpLabel = info.label || logOptions.label;
+        const label = tmpLabel ? `${tmpLabel} - ` : '';
+        const message = info.message ? info.message : '';
+        const optionsMeta = Object.assign({}, logOptions.meta);
+        const tmpMeta = info.meta ? Object.assign(optionsMeta, info.meta): logOptions.meta;
+        const meta = tmpMeta && Object.keys(tmpMeta).length ? `\n${JSON.stringify(tmpMeta, null, '\t')}` : '';
+        const dateTime = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
+        const level = info.level.toUpperCase();
+        if (applyColors){
+            return `${this.colors[level] || ANSI_RESET}${dateTime} [${level}]${from}: ${label}${message}${meta}${ANSI_RESET}`;
+        }
+        return `${dateTime} [${level}]${from}: ${label}${message}${meta}`;
+    }
 
     /**
      * @constructor
-     * @param [opts.logFolder=./logs] {string} Destination of the generated log files.
-     * @param [opts.logLevel=info] {string} The log level.
-     * @param [opts.logFilename=%DATE%] {string} The log file's name.
-     * @param [opts.logFileDatePattern=YYYY-DD-MM] {string} The date pattern inside the log file's name.
-     * @param [opts.colors] {{}} Colors of the log levels (Uppercase).
+     * @param [module] {{}} Add the current module to determine the root info
+     * @param [settings] {{}} Destination of the generated log files.
+     * @param [settings.logFolder=./logs] {string} Destination of the generated log files.
+     * @param [settings.logLevel=info] {string} The log level.
+     * @param [settings.logFilename=%DATE%] {string} The log file's name.
+     * @param [settings.logFileDatePattern=YYYY-DD-MM] {string} The date pattern inside the log file's name.
+     * @param [settings.colors] {{}} Colors of the log levels (Uppercase).
+     * @param [logOptions] {{}} Sets the 'from' options in the log line.
+     * @param [logOptions.from] {string} Sets the 'from' options in the log line.
+     * @param [logOptions.label] {string} Sets the 'label' options in the log line.
+     * @param [logOptions.meta] {{}} Include default metadata to the log line.
      */
-    constructor(opts = {}){
-        this.logFolder = opts.logFolder || './logs';
-        this.logLevel = opts.logLevel || 'info';
-        this.logFilename = opts.logFilename ?  `.${opts.logFilename}`:'';
-        this.logFileDatePattern = opts.logFileDatePattern || 'YYYY-DD-MM';
+    constructor(module, settings = {}, logOptions = {}){
+        let filename = '';
+        if (module){
+            require('pkginfo')(module);
+            filename = `.${module.exports.name}` || '';
+        }
+        this.logFolder = settings.logFolder || './logs';
+        this.logLevel = settings.logLevel || 'info';
+        this.logFilename = settings.logFilename ?  `.${settings.logFilename}`:filename;
+        this.logFileDatePattern = settings.logFileDatePattern || 'YYYY-DD-MM';
+        this.logLevel = this.logLevel.toLowerCase();
+        logOptions.meta = logOptions.meta || {};
 
         fs.ensureDirSync(this.logFolder);
 
@@ -42,28 +71,14 @@ class Logger {
             DEBUG: ANSI_GRAY,
             WARN: ANSI_YELLOW,
             ERROR: ANSI_RED
-        }, opts.colors);
+        }, settings.colors);
 
         this.humanFormat = format.printf((info) => {
-            let from = info.from ? `[${info.from}]` : '';
-            let label = info.label ? `${info.label} - ` : '';
-            let message = info.message ? info.message : '';
-            let meta = info.meta && Object.keys(info.meta).length ? `\n${JSON.stringify(info.meta, null, '\t')}` : '';
-            let dateTime = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
-            let level = info.level.toUpperCase();
-
-            return `${dateTime} [${level}]${from}: ${label}${message}${meta}`;
+            return this.formatLogLine(info, logOptions);
         });
 
         this.humanFormatColorized = format.printf((info) => {
-            let from = info.from ? `[${info.from}]` : '';
-            let label = info.label ? `${info.label} - ` : '';
-            let message = info.message ? info.message : '';
-            let meta = info.meta && Object.keys(info.meta).length ? `\n${JSON.stringify(info.meta, null, '\t')}` : '';
-            let dateTime = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
-            let level = info.level.toUpperCase();
-
-            return `${this.colors[level] || ANSI_RESET}${dateTime} [${level}]${from}: ${label}${message}${meta}${ANSI_RESET}`;
+            return this.formatLogLine(info, logOptions, true);
         });
 
         this.dailyRotateTransport = new transports.DailyRotateFile({

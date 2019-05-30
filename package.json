@@ -1,6 +1,6 @@
 {
   "name": "winston-preformatted-logger",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "WinstonJS based logger",
   "main": "logger.js",
   "author": "Max van de Laar <max.vandelaar@me.com>",
@@ -11,6 +11,7 @@
   "dependencies": {
     "fs-extra": "^6.0.1",
     "moment": "^2.22.1",
+    "pkginfo": "^0.4.1",
     "winston": "^3.0.0-rc4",
     "winston-daily-rotate-file": "^2.0.0-rc.6"
   },
